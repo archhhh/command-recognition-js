@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands"></script>
+    <link rel="stylesheet" type="text/css" href="style/style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="banner">
+            <div class="wrapper">
+                <h1>Use custom voice commands to interact with Reddit.</h1>
+                <div class="logos">
+                    <a href="https://reddit.com"><img src="./assets/reddit-logo-new.svg"></a>
+                    <a href="https://tensorflow.org"><img src="./assets/Tensorflow_logo.svg.png"></a>
+                </div>
+            </div>
+        </div>
+        <div class="separator">
+        </div>
+        <div id="train">
+            <div class="wrapper">
+                <div class="left">
+                    <h1>Collect data and test the prediction</h1>
+                    <p class='desc'>It takes some time to download the model. Once it is downloaded, try to collect your examples. 
+                    For each command hold the appropriate button and make a consisted sound repeatedly at frequency 1 sound per second, because audio is recorded each second. Per each button collect around 20 examples. It is important
+                    to collect noise to recognize sounds for which no action is needed. If there is a big difference in accuracy when task is offloaded and when task is run client-side, refresh the page.</p>
+                    <p class='offloaded'></p>
+                </div>
+                <div class="right">
+                    <p id="examples">0 Examples</p>
+                    <p id="model-accuracy"></p>
+                    <p id="time"></p>
+                    <p id="inference"></p>
+                    <button class="data-button" id="search-programming" onclick="collect(0)">Search new from /r/programming</button>
+                    <button class="data-button" id="search-tensorflow" onclick="collect(1)">Search new from /r/tensorflow</button>
+                    <button class="data-button" id="noise" onclick="collect(2)">Noise</button>
+                    <br>
+                    <button class="train-button" id="trainButton" onclick="train()">Train</button>
+                    <button class="listen-button" id="listenButton" onclick="listen()">Inference</button>
+                    <button class="backend-button" id="backendButton" onclick="changeBackend()">Switch to CPU</button>
+                    <br>
+                    <button class="train-offload-button" id="trainOffloadButton" onclick="trainOffload()">Train server-side</button>
+                    <button class="listen-offload-button" id="listenOffloadButton" onclick="listenOffload()">Inference server-side</button>
+                </div>            
+            </div>
+        </div>
+        <div class="separator">
+        </div>
+        <div id="posts">
+            
+        </div>
+    </div>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./index.js"></script>
+    <script src="./speechRecognition/index.js"></script>
+</body>
+</html>
