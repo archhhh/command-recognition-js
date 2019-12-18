@@ -65,7 +65,7 @@
     margin-bottom:20px;
 }
 
-#examples, #model-accuracy, #time{
+#examples, #model-accuracy, #time, .train-reconsider{
     font-size:24px; 
     margin-bottom:20px;
 }
@@ -84,7 +84,7 @@
     background-color: #f1f3f4;
 }
 
-.train-button, .listen-button, .backend-button, .train-offload-button, .listen-offload-button{
+.train-button, .listen-button, .backend-button, .train-offload-button, .listen-offload-button, .train-stop-button{
     background:none;
     border:1px solid #000000;
     padding:10px 15px;
@@ -121,6 +121,9 @@
 }
 #inference{
     margin-bottom:20px;
+}
+.train-stop{
+    display:none;
 }
 @media screen and (max-width:1000px){
     #banner .wrapper{
