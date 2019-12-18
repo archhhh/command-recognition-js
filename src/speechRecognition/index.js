@@ -30,31 +30,69 @@ function normalize(x) {
   
 const INPUT_SHAPE = [NUM_FRAMES, 232, 1];
 let model;
+let secondModel;
+let lastTraining = 0;
+let stopRequested;
+
   
 async function train() {
-   let startTime = new Date();
-   toggleButtons(false);
-   const ys = tf.oneHot(examples.map(e => e.label), 3);
-   const xsShape = [examples.length, ...INPUT_SHAPE];
-   const xs = tf.tensor(flatten(examples.map(e => e.vals)), xsShape);
-  
-   await model.fit(xs, ys, {
+   if(lastTraining == 1){
+      let temp =  secondModel;
+      secondModel = model;
+      model = temp;  
+  }
+  document.getElementById('time').textContent = ``;
+  stopRequested = false;
+  lastTraining = 0;
+  let startTime = new Date();
+  toggleButtons(false);
+  document.querySelector('.train-stop-button').disabled = false;
+  const ys = tf.oneHot(examples.map(e => e.label), 3);
+  const xsShape = [examples.length, ...INPUT_SHAPE];
+  const xs = tf.tensor(flatten(examples.map(e => e.vals)), xsShape);
+  let startBatchTime;
+  await model.fit(xs, ys, {
      batchSize: 25,
      epochs: 20,
      callbacks: {
+       onEpochBegin: () => {
+          startBatchTime = new Date();
+       },
        onEpochEnd: (epoch, logs) => {
+        if(stopRequested){
+          model.stopTraining = true;
+          toggleButtons(true);
+        }else{
          document.querySelector('#model-accuracy').textContent =
              `Accuracy: ${(logs.acc * 100).toFixed(1)}% Epoch: ${epoch + 1}`;
+         let timeTaken = new Date() - startBatchTime;
+         console.log(timeTaken);
+         console.log((2*examples.length/50)*1000/20 + 200);
+         if(timeTaken >= 2*examples.length + (2*examples.length/50)*1000/20 + 100){
+           document.querySelector('.train-reconsider').innerText = `Last epoch took ${timeTaken} ms to finish. It would probably be faster if you offloaded this task to the server.`;
+         }else{
+           document.querySelector('.train-reconsider').innerText = ``;
+         }
+        }
        }
      }
    });
-   tf.dispose([xs, ys]);
-   toggleButtons(true);
-   document.getElementById('time').textContent = `Time taken to train model: ${new Date() - startTime} ms`;
+  tf.dispose([xs, ys]);
+  toggleButtons(true);
+  if(!stopRequested){
+    document.getElementById('time').textContent = `Time taken to train model: ${new Date() - startTime} ms`;
+  }else{
+    document.querySelector('#model-accuracy').textContent = ``;
+  }
+  document.querySelector('.train-reconsider').innerText = ``;
 }
   
+
+stopTrain = () => {
+  stopRequested = true;
+}
+
 function buildModel() {
-   
    model = tf.sequential();
    model.add(tf.layers.depthwiseConv2d({
      depthMultiplier: 8,
@@ -162,54 +200,27 @@ trainOffload = () => {
     document.querySelector('#model-accuracy').textContent = `Nothing to train on`;
     return;
   }
+  document.getElementById('time').textContent = ``;
   toggleButtons(false);
   let startTime = new Date();
   axios.post(`https://10.64.151.156:8000/train`, {examples: JSON.stringify(examples)})
   .then( response => {
-    document.querySelector('#model-accuracy').textContent = `Accuracy: ${response.data.accuracy}% after 10 epochs`;
+    document.querySelector('#model-accuracy').textContent = `Accuracy: ${response.data.accuracy}% after 20 epochs`;
     document.getElementById('time').textContent = `Time taken to train model: ${new Date() - startTime} ms`;
-    toggleButtons(true);
+    tf.loadLayersModel('https://10.64.151.156:8000/model/model.json')
+    .then( loadedModel => {
+      if(lastTraining == 0)
+        secondModel = model;
+      model = loadedModel;  
+      lastTraining = 1;
+      toggleButtons(true);
+    });
   })
   .catch( error => {
     console.log(error);
     toggleButtons(true);
   });
 };
-
-listenOffload = () => {
-  if (examples.length == 0){
-    document.querySelector('#inference').textContent = `Train model first`;
-    return;
-  }
-  if (recognizer.isListening()) {
-    recognizer.stopListening();
-    toggleButtons(true);
-    document.getElementById('listenOffloadButton').textContent = 'Inference server-side';
-    return;
-  }
-  toggleButtons(false);
-  document.getElementById('listenOffloadButton').textContent = 'Stop';
-  document.getElementById('listenOffloadButton').disabled = false;
-   
-  recognizer.listen(async ({spectrogram: {frameSize, data}}) => {
-    let startTime = new Date();
-    axios.post(`https://10.64.151.156:8000/inference`, {spectrogram: JSON.stringify({frameSize, data})})
-    .then( response => {
-        actionHandler(response.data.result);
-        document.getElementById('time').textContent = `Time taken for inference: ${new Date() - startTime} ms`;
-    })
-    .catch( error => {
-      console.log(error);
-      toggleButtons(true);
-    });
-    
-  }, {
-    overlapFactor: 0.01,
-    includeSpectrogram: true,
-    invokeCallbackOnNoiseAndUnknown: true
-  });
-};
-
 
 async function app() {
   toggleButtons(false);

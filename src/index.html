@@ -36,16 +36,18 @@
                     <p id="model-accuracy"></p>
                     <p id="time"></p>
                     <p id="inference"></p>
+                    <p class="train-reconsider"></p>
                     <button class="data-button" id="search-programming" onclick="collect(0)">Search new from /r/programming</button>
                     <button class="data-button" id="search-tensorflow" onclick="collect(1)">Search new from /r/tensorflow</button>
                     <button class="data-button" id="noise" onclick="collect(2)">Noise</button>
                     <br>
                     <button class="train-button" id="trainButton" onclick="train()">Train</button>
+                    <button class="train-offload-button" id="trainOffloadButton" onclick="trainOffload()">Train server-side</button>
+                    
+                    <button class="train-stop-button" onclick="stopTrain()">Stop</button>
+                    <br>
                     <button class="listen-button" id="listenButton" onclick="listen()">Inference</button>
                     <button class="backend-button" id="backendButton" onclick="changeBackend()">Switch to CPU</button>
-                    <br>
-                    <button class="train-offload-button" id="trainOffloadButton" onclick="trainOffload()">Train server-side</button>
-                    <button class="listen-offload-button" id="listenOffloadButton" onclick="listenOffload()">Inference server-side</button>
                 </div>            
             </div>
         </div>

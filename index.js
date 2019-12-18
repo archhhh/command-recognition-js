@@ -2,8 +2,8 @@ const tf = require('@tensorflow/tfjs-node');
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
-const privateKey  = fs.readFileSync('./sslcert/ssl-key.pem');
-const certificate = fs.readFileSync('./sslcert/ssl-cert.pem');
+const privateKey  = fs.readFileSync('./key.pem');
+const certificate = fs.readFileSync('./cert.pem');
 const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
@@ -34,6 +34,7 @@ async function train(examples) {
        }
      }
    });
+   await model.save('file://./src/model');
    tf.dispose([xs, ys]);
    return accuracy;
 }
