@@ -203,11 +203,11 @@ trainOffload = () => {
   document.getElementById('time').textContent = ``;
   toggleButtons(false);
   let startTime = new Date();
-  axios.post(`https://34.94.20.12:8000/train`, {examples: JSON.stringify(examples)})
+  axios.post(`https://localhost:8000/train`, {examples: JSON.stringify(examples)})
   .then( response => {
     document.querySelector('#model-accuracy').textContent = `Accuracy: ${response.data.accuracy}% after 20 epochs`;
     document.getElementById('time').textContent = `Time taken to train model: ${new Date() - startTime} ms`;
-    tf.loadLayersModel('https://34.94.20.12:8000/model/model.json')
+    tf.loadLayersModel('https://localhost:8000/model/model.json')
     .then( loadedModel => {
       if(lastTraining == 0)
         secondModel = model;
