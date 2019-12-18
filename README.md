@@ -7,6 +7,7 @@ Requirements:
 
 To run locally at port 8000:
 
+```
 npm install
 node index.js
-
+```
