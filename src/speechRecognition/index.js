@@ -68,7 +68,7 @@ async function train() {
          let timeTaken = new Date() - startBatchTime;
          console.log(timeTaken);
          console.log((2*examples.length/50)*1000/20 + 200);
-         if(timeTaken >= 2*examples.length + (2*examples.length/50)*1000/20 + 100){
+         if(timeTaken >= 2*examples.length + (2*examples.length/20)*1000/20 + 100){
            document.querySelector('.train-reconsider').innerText = `Last epoch took ${timeTaken} ms to finish. It would probably be faster if you offloaded this task to the server.`;
          }else{
            document.querySelector('.train-reconsider').innerText = ``;
@@ -126,7 +126,7 @@ function listen() {
   if (recognizer.isListening()) {
     recognizer.stopListening();
     toggleButtons(true);
-    document.getElementById('listenButton').textContent = 'Listen';
+    document.getElementById('listenButton').textContent = 'Inference';
     return;
   }
   toggleButtons(false);
@@ -203,11 +203,11 @@ trainOffload = () => {
   document.getElementById('time').textContent = ``;
   toggleButtons(false);
   let startTime = new Date();
-  axios.post(`https://10.64.151.156:8000/train`, {examples: JSON.stringify(examples)})
+  axios.post(`https://34.94.20.12:8000/train`, {examples: JSON.stringify(examples)})
   .then( response => {
     document.querySelector('#model-accuracy').textContent = `Accuracy: ${response.data.accuracy}% after 20 epochs`;
     document.getElementById('time').textContent = `Time taken to train model: ${new Date() - startTime} ms`;
-    tf.loadLayersModel('https://10.64.151.156:8000/model/model.json')
+    tf.loadLayersModel('https://34.94.20.12:8000/model/model.json')
     .then( loadedModel => {
       if(lastTraining == 0)
         secondModel = model;
